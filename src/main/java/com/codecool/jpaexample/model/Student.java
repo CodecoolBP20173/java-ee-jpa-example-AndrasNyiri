@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-@Entity
+@Entity(name = "Student")
 public class Student {
 
     @Id
@@ -15,30 +15,42 @@ public class Student {
 
     private String name;
 
+    @Column(unique = true,nullable = false)
     private String email;
 
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 
+    @Transient
     private long age;
 
     @OneToOne
+    @JoinColumn(name = "address_id")
     private Address address;
+
+    @ManyToOne
+    private Klass klass;
+
+    @ElementCollection
+    @CollectionTable(name = "Phone")
+    private List<String> phoneNumbers;
 
     public Student() {
     }
 
-    public Student(String name, String email, Date dateOfBirth) {
+    public Student(String name, String email, Date dateOfBirth, List<String> phoneNumbers) {
         this.name = name;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.age = (Calendar.getInstance().getTimeInMillis() - dateOfBirth.getTime())
                 / (60L * 60L * 1000L * 24L * 365L);
+        this.phoneNumbers = phoneNumbers;
     }
 
-    public Student(String name, String email, Date dateOfBirth, Address address) {
-        this(name, email, dateOfBirth);
+    public Student(String name, String email, Date dateOfBirth, Address address,List<String> phoneNumbers) {
+        this(name, email, dateOfBirth,phoneNumbers);
         this.address = address;
+        address.setStudent(this);
     }
 
     public long getId() {
@@ -95,4 +107,11 @@ public class Student {
                 '}';
     }
 
+    public void setKlass(Klass klass) {
+        this.klass = klass;
+    }
+
+    public Klass getKlass() {
+        return klass;
+    }
 }
